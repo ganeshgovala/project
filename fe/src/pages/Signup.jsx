@@ -1,19 +1,47 @@
 import { Heading } from "../components/Heading";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
-import { useState } from "react";
+import React,{ useState } from "react";
+import { auth } from "../../firebase";
+import { db } from "../../firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { getDocs, addDoc, collection, where, query} from "firebase/firestore"
 
 export function Signup() {
 
     const [firstname, setFirstname] = useState("");
     const [secondname, setSecondname] = useState("");
-    const [password, setPassword] = useState("")
-    const [email, setEmail] = useState("")   
+    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
+    // const [metch, setmetch] = useState([])   
 
-    console.log(firstname)
-    console.log(secondname)
-    console.log(email)
-    console.log(password)
+    const dbref = collection(db, "Users")
+
+    const Signup = async (e) => {
+        // todo: sign in
+        e.preventDefault();
+        const matchEmail = query(dbref, where('Email', '==', email))
+        try {
+            const snapshot = await getDocs(matchEmail)
+            const emailMatchingArray = snapshot.docs.map((doc) => doc.data())
+            if (emailMatchingArray.length > 0) {
+                alert("This Email Address Already exsists")
+            } else {
+                await addDoc(dbref, {Firstname: firstname, Secondname: secondname, Email: email, Password: password})
+            }
+        } catch (error) {
+            alert(error)
+        }
+        createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            var user = userCredential.user;
+            console.log(userCredential);
+            alert("signup successfull");     
+        }).catch((error) => {
+            console.log(error);
+            alert("user is already existed")
+        })
+    }
 
     return (
         <div className="flex items-center justify-center h-[100vh] w-[100vw]">
@@ -27,11 +55,11 @@ export function Signup() {
                 username={"Second Name"} placeholder={"John"} />
                 <Input
                 onChange = {(e) => setEmail(e.target.value)}
-                username={"Email"} type={"email"} placeholder={"xyz@email.com"} />
+                username={"email"} type={"email"} placeholder={"xyz@email.com"} />
                 <Input
                 onChange = {(e) => setPassword(e.target.value)}
                 username={"Password"} type={"password"} />
-                <Button />
+                <Button onclick={Signup}/>
             </div>
         </div>
     )
