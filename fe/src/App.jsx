@@ -5,13 +5,15 @@ import './App.css'
 
 import { Signin } from './pages/Signin'
 import { Signup } from './pages/Signup'
+import { Dashboard } from './pages/Dashboard'
+import { Navbar } from './components/Navbar'
 
 function App() {
 
   return (
-    <div>
-      <Signin/>
-    </div>
+    <>
+      <Navbar />
+    </>
   )
 
 }
